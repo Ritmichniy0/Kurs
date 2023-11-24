@@ -1,0 +1,14 @@
+D:\Рабочий стол\Новая папка\java\ООП\lessonOOP8\lessonOOP8\bin\Debug\net6.0\lessonOOP8.exe
+D:\Рабочий стол\Новая папка\java\ООП\lessonOOP8\lessonOOP8\bin\Debug\net6.0\lessonOOP8.deps.json
+D:\Рабочий стол\Новая папка\java\ООП\lessonOOP8\lessonOOP8\bin\Debug\net6.0\lessonOOP8.runtimeconfig.json
+D:\Рабочий стол\Новая папка\java\ООП\lessonOOP8\lessonOOP8\bin\Debug\net6.0\lessonOOP8.dll
+D:\Рабочий стол\Новая папка\java\ООП\lessonOOP8\lessonOOP8\bin\Debug\net6.0\lessonOOP8.pdb
+D:\Рабочий стол\Новая папка\java\ООП\lessonOOP8\lessonOOP8\obj\Debug\net6.0\lessonOOP8.GeneratedMSBuildEditorConfig.editorconfig
+D:\Рабочий стол\Новая папка\java\ООП\lessonOOP8\lessonOOP8\obj\Debug\net6.0\lessonOOP8.AssemblyInfoInputs.cache
+D:\Рабочий стол\Новая папка\java\ООП\lessonOOP8\lessonOOP8\obj\Debug\net6.0\lessonOOP8.AssemblyInfo.cs
+D:\Рабочий стол\Новая папка\java\ООП\lessonOOP8\lessonOOP8\obj\Debug\net6.0\lessonOOP8.csproj.CoreCompileInputs.cache
+D:\Рабочий стол\Новая папка\java\ООП\lessonOOP8\lessonOOP8\obj\Debug\net6.0\lessonOOP8.dll
+D:\Рабочий стол\Новая папка\java\ООП\lessonOOP8\lessonOOP8\obj\Debug\net6.0\refint\lessonOOP8.dll
+D:\Рабочий стол\Новая папка\java\ООП\lessonOOP8\lessonOOP8\obj\Debug\net6.0\lessonOOP8.pdb
+D:\Рабочий стол\Новая папка\java\ООП\lessonOOP8\lessonOOP8\obj\Debug\net6.0\lessonOOP8.genruntimeconfig.cache
+D:\Рабочий стол\Новая папка\java\ООП\lessonOOP8\lessonOOP8\obj\Debug\net6.0\ref\lessonOOP8.dll
