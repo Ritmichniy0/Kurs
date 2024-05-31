@@ -1,7 +1,10 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
 
 public class Message
 {
@@ -26,7 +29,6 @@ public class UdpServer
 {
 	private UdpClient udpServer;
 	private IPEndPoint remoteEndPoint;
-	private bool isRunning;
 
 	public UdpServer(int port)
 	{
@@ -35,56 +37,61 @@ public class UdpServer
 		Console.WriteLine("UDP-сервер запущен по порту " + port);
 	}
 
-	public async Task Start()
+	public async Task Start(CancellationToken cancellationToken)
 	{
-		isRunning = true;
-
-		while (isRunning)
+		try
 		{
-			if (udpServer.Available > 0)
+			while (!cancellationToken.IsCancellationRequested)
 			{
-				var receivedResult = await udpServer.ReceiveAsync();
-				byte[] receivedBytes = receivedResult.Buffer;
-				string receivedMessageJson = Encoding.UTF8.GetString(receivedBytes);
-				Message? receivedMessage = Message.DeserializeFromJson(receivedMessageJson);
-
-				if (receivedMessage != null)
+				if (udpServer.Available > 0)
 				{
-					Console.WriteLine("Получено сообщение от клиента:");
-					receivedMessage.Print();
+					var receivedResult = await udpServer.ReceiveAsync();
+					byte[] receivedBytes = receivedResult.Buffer;
+					string receivedMessageJson = Encoding.UTF8.GetString(receivedBytes);
+					Message? receivedMessage = Message.DeserializeFromJson(receivedMessageJson);
 
-					Message confirmationMessage = new Message
+					if (receivedMessage != null)
 					{
-						text = "Сообщение получено",
-						dateTime = DateTime.Now,
-						nikenameFrom = "Server",
-						nikenameTo = receivedMessage.nikenameFrom
-					};
-					string confirmationJson = confirmationMessage.SerializeMessageTojson();
-					byte[] confirmationBytes = Encoding.UTF8.GetBytes(confirmationJson);
-					await udpServer.SendAsync(confirmationBytes, confirmationBytes.Length, receivedResult.RemoteEndPoint);
-				}
-			}
-			await Task.Delay(100);
-		}
-	}
+						Console.WriteLine("Получено сообщение от клиента:");
+						receivedMessage.Print();
 
-	public void Stop()
-	{
-		isRunning = false;
-		udpServer.Close();
-		Console.WriteLine("UDP-сервер остановлен.");
+						Message confirmationMessage = new Message
+						{
+							text = "Сообщение получено",
+							dateTime = DateTime.Now,
+							nikenameFrom = "Server",
+							nikenameTo = receivedMessage.nikenameFrom
+						};
+						string confirmationJson = confirmationMessage.SerializeMessageTojson();
+						byte[] confirmationBytes = Encoding.UTF8.GetBytes(confirmationJson);
+						await udpServer.SendAsync(confirmationBytes, confirmationBytes.Length, receivedResult.RemoteEndPoint);
+					}
+				}
+				await Task.Delay(100); // Add a short delay to avoid busy waiting
+			}
+		}
+		catch (OperationCanceledException)
+		{
+			Console.WriteLine("Работа сервера была отменена.");
+		}
+		finally
+		{
+			udpServer.Close();
+			Console.WriteLine("UDP-сервер остановлен.");
+		}
 	}
 
 	public static void Main(string[] args)
 	{
 		UdpServer server = new UdpServer(5000);
-		Task serverTask = Task.Run(() => server.Start());
+		CancellationTokenSource cts = new CancellationTokenSource();
+
+		Task serverTask = server.Start(cts.Token);
 
 		Console.WriteLine("Нажмите любую клавишу для завершения работы сервера...");
 		Console.ReadKey();
 
-		server.Stop();
+		cts.Cancel();
 		serverTask.Wait();
 	}
 }
