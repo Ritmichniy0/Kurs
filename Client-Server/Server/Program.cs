@@ -1,9 +1,8 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
+
 public class Message
 {
 	public string? text { get; set; }
@@ -27,6 +26,7 @@ public class UdpServer
 {
 	private UdpClient udpServer;
 	private IPEndPoint remoteEndPoint;
+	private bool isRunning;
 
 	public UdpServer(int port)
 	{
@@ -37,36 +37,54 @@ public class UdpServer
 
 	public async Task Start()
 	{
-		while (true)
+		isRunning = true;
+
+		while (isRunning)
 		{
-			var receivedResult = await udpServer.ReceiveAsync();
-			byte[] receivedBytes = receivedResult.Buffer;
-			string receivedMessageJson = Encoding.UTF8.GetString(receivedBytes);
-			Message? receivedMessage = Message.DeserializeFromJson(receivedMessageJson);
-
-			if (receivedMessage != null)
+			if (udpServer.Available > 0)
 			{
-				Console.WriteLine("Получено сообщение от клиента:");
-				receivedMessage.Print();
+				var receivedResult = await udpServer.ReceiveAsync();
+				byte[] receivedBytes = receivedResult.Buffer;
+				string receivedMessageJson = Encoding.UTF8.GetString(receivedBytes);
+				Message? receivedMessage = Message.DeserializeFromJson(receivedMessageJson);
 
-				// Send confirmation to client
-				Message confirmationMessage = new Message
+				if (receivedMessage != null)
 				{
-					text = "Сообщение",
-					dateTime = DateTime.Now,
-					nikenameFrom = "Server",
-					nikenameTo = receivedMessage.nikenameFrom
-				};
-				string confirmationJson = confirmationMessage.SerializeMessageTojson();
-				byte[] confirmationBytes = Encoding.UTF8.GetBytes(confirmationJson);
-				await udpServer.SendAsync(confirmationBytes, confirmationBytes.Length, receivedResult.RemoteEndPoint);
+					Console.WriteLine("Получено сообщение от клиента:");
+					receivedMessage.Print();
+
+					Message confirmationMessage = new Message
+					{
+						text = "Сообщение получено",
+						dateTime = DateTime.Now,
+						nikenameFrom = "Server",
+						nikenameTo = receivedMessage.nikenameFrom
+					};
+					string confirmationJson = confirmationMessage.SerializeMessageTojson();
+					byte[] confirmationBytes = Encoding.UTF8.GetBytes(confirmationJson);
+					await udpServer.SendAsync(confirmationBytes, confirmationBytes.Length, receivedResult.RemoteEndPoint);
+				}
 			}
+			await Task.Delay(100);
 		}
+	}
+
+	public void Stop()
+	{
+		isRunning = false;
+		udpServer.Close();
+		Console.WriteLine("UDP-сервер остановлен.");
 	}
 
 	public static void Main(string[] args)
 	{
 		UdpServer server = new UdpServer(5000);
-		Task.Run(() => server.Start()).Wait();
+		Task serverTask = Task.Run(() => server.Start());
+
+		Console.WriteLine("Нажмите любую клавишу для завершения работы сервера...");
+		Console.ReadKey();
+
+		server.Stop();
+		serverTask.Wait();
 	}
 }

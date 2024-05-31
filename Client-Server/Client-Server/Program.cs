@@ -41,7 +41,6 @@ public class UdpClientApp
 		byte[] messageBytes = Encoding.UTF8.GetBytes(messageJson);
 		await udpClient.SendAsync(messageBytes, messageBytes.Length, serverEndPoint);
 
-		// Receive confirmation
 		UdpReceiveResult receivedResult = await udpClient.ReceiveAsync();
 		byte[] responseBytes = receivedResult.Buffer;
 		string responseJson = Encoding.UTF8.GetString(responseBytes);
@@ -58,15 +57,24 @@ public class UdpClientApp
 	{
 		UdpClientApp client = new UdpClientApp("127.0.0.1", 5000);
 
-		Message message = new Message
+		Console.WriteLine("Введите сообщение ('Exit' для выхода):");
+		while (true)
 		{
-			text = "Привет!",
-			dateTime = DateTime.Now,
-			nikenameFrom = "Клиент",
-			nikenameTo = "Server"
-		};
+			string input = Console.ReadLine();
+			if (input.Equals("Exit", StringComparison.OrdinalIgnoreCase))
+			{
+				break;
+			}
 
-		Task.Run(async () => await client.SendMessage(message)).Wait();
-		Console.ReadKey();
+			Message message = new Message
+			{
+				text = input,
+				dateTime = DateTime.Now,
+				nikenameFrom = "Клиент",
+				nikenameTo = "Server"
+			};
+
+			Task.Run(async () => await client.SendMessage(message)).Wait();
+		}
 	}
 }
