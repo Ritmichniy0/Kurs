@@ -4,25 +4,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-
-public class Message
-{
-	public string? text { get; set; }
-	public DateTime? dateTime { get; set; }
-	public string? nikenameFrom { get; set; }
-	public string? nikenameTo { get; set; }
-
-	public string SerializeMessageTojson() => JsonSerializer.Serialize(this);
-
-	public static Message? DeserializeFromJson(string message) => JsonSerializer.Deserialize<Message>(message);
-
-	public void Print()
-	{
-		Console.WriteLine(ToString());
-	}
-
-	public override string ToString() => $"{this.dateTime} получено сообщение {this.text} от {this.nikenameFrom}";
-}
+using MessageText;
 
 public class UdpClientApp
 {
@@ -53,11 +35,11 @@ public class UdpClientApp
 		}
 	}
 
-	public static void Main(string[] args)
+	public static async Task Main(string[] args)
 	{
 		UdpClientApp client = new UdpClientApp("127.0.0.1", 5000);
 
-		Console.WriteLine("Введите сообщение ('Exit' для выхода):");
+		Console.WriteLine("Введите 'Exit' для завершения работы.");
 		while (true)
 		{
 			string input = Console.ReadLine();
@@ -74,7 +56,7 @@ public class UdpClientApp
 				nikenameTo = "Server"
 			};
 
-			Task.Run(async () => await client.SendMessage(message)).Wait();
+			await client.SendMessage(message);
 		}
 	}
 }
